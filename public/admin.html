@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin | Kerovic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #F0F4F8;
+        }
+
+        .admin-header-bar {
+            background: #0E2433;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .admin-header-bar .logo {
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .admin-header-bar .logo span {
+            color: #00CED1;
+        }
+
+        .admin-header-bar .back-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .admin-header-bar .back-link:hover {
+            color: #00CED1;
+        }
+
+        /* Login */
+        .login-card {
+            max-width: 380px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(14, 36, 51, 0.08);
+        }
+
+        .login-card h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #0E2433;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        .admin-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .admin-title h1 {
+            font-size: 1.5rem;
+            color: #0E2433;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(14, 36, 51, 0.06);
+        }
+
+        .form-card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #E1E8ED;
+            color: #0E2433;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #5A6C7D;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #E1E8ED;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00CED1;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* File Upload */
+        .upload-area {
+            border: 2px dashed #E1E8ED;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            border-color: #00CED1;
+            background: rgba(0, 206, 209, 0.03);
+        }
+
+        .upload-area input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-area .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area p {
+            color: #8B9CAD;
+            font-size: 0.85rem;
+        }
+
+        .preview-img {
+            max-width: 150px;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .preview-img.show {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #00CED1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0E2433;
+        }
+
+        .btn-secondary {
+            background: #F0F4F8;
+            color: #5A6C7D;
+        }
+
+        .btn-secondary:hover {
+            background: #E1E8ED;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+        /* Products Table */
+        .products-list {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(14, 36, 51, 0.06);
+        }
+
+        .products-list-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #E1E8ED;
+            font-weight: 600;
+            color: #5A6C7D;
+            font-size: 0.85rem;
+        }
+
+        /* Product Card for Mobile */
+        .product-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #F0F4F8;
+            align-items: center;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .product-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .product-item-name {
+            font-weight: 600;
+            color: #0E2433;
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .product-item-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: #8B9CAD;
+        }
+
+        .product-item-price {
+            color: #00CED1;
+            font-weight: 600;
+        }
+
+        .product-item-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Desktop Table View */
+        @media (min-width: 768px) {
+            .admin-panel {
+                padding: 2rem;
+            }
+
+            .form-card {
+                padding: 2rem;
+            }
+
+            .login-card {
+                margin-top: 5rem;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 640px) {
+            .admin-header-bar {
+                padding: 0.875rem 1rem;
+            }
+
+            .admin-header-bar .logo {
+                font-size: 1.25rem;
+            }
+
+            .admin-title h1 {
+                font-size: 1.25rem;
+            }
+
+            .form-card {
+                padding: 1.25rem;
+            }
+
+            .form-card h2 {
+                font-size: 1rem;
+            }
+
+            .upload-area {
+                padding: 1rem;
+            }
+
+            .product-item {
+                flex-wrap: wrap;
+            }
+
+            .product-item-actions {
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .toast-container {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            z-index: 200;
+        }
+
+        .toast {
+            background: #0E2433;
+            color: white;
+            padding: 0.875rem 1.25rem;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            background: #059669;
+        }
+
+        .toast.error {
+            background: #dc2626;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="admin-header-bar">
+        <a href="/" class="logo"><img src="/IMG/LOGO.png" alt="Kerovic"
+                style="height: 45px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));"></a>
+        <a href="/" class="back-link">← Volver al catálogo</a>
+    </header>
+
+    <!-- Login -->
+    <div class="login-card" id="loginSection">
+        <h1>🔐 Admin</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" placeholder="Ingresa la contraseña" required>
+            </div>
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Ingresar</button>
+            </div>
+        </form>
+        <p id="loginError"
+            style="color: #dc2626; text-align: center; margin-top: 1rem; display: none; font-size: 0.9rem;">
+            Contraseña incorrecta
+        </p>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel hidden" id="adminSection">
+        <div class="admin-title">
+            <h1>📦 Gestión de Productos</h1>
+            <button class="btn btn-secondary" id="logoutBtn">Cerrar Sesión</button>
+        </div>
+
+        <!-- Product Form -->
+        <div class="form-card">
+            <h2 id="formTitle">➕ Agregar Producto</h2>
+            <form id="productForm">
+                <input type="hidden" id="productId" name="id">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="productName">Nombre *</label>
+                        <input type="text" id="productName" name="name" required
+                            placeholder="Ej: Esmalte semipermanente">
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Categoría</label>
+                        <input type="text" id="productCategory" name="category" placeholder="Ej: Esmaltes"
+                            list="categoriesList">
+                        <datalist id="categoriesList"></datalist>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="productPrice">Precio *</label>
+                        <input type="number" id="productPrice" name="price" step="0.01" min="0" required
+                            placeholder="0.00">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">Descripción</label>
+                    <textarea id="productDescription" name="description"
+                        placeholder="Describe el producto..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Imagen</label>
+                    <div class="upload-area" id="fileInputWrapper">
+                        <input type="file" id="productImage" name="image" accept="image/*">
+                        <div class="icon">📷</div>
+                        <p id="fileLabel">Toca para subir imagen</p>
+                    </div>
+                    <img class="preview-img" id="imagePreview" alt="Vista previa">
+                </div>
+
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">➕ Agregar</button>
+                    <button type="button" class="btn btn-secondary hidden" id="cancelEditBtn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Products List -->
+        <div class="products-list">
+            <div class="products-list-header">Productos</div>
+            <div id="productsListBody">
+                <div class="product-item" style="justify-content: center; color: #8B9CAD;">
+                    Cargando productos...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // State
+        let authToken = localStorage.getItem('kerovic_admin_token');
+        let products = [];
+        let editingProductId = null;
+
+        // DOM
+        const loginSection = document.getElementById('loginSection');
+        const adminSection = document.getElementById('adminSection');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const productForm = document.getElementById('productForm');
+        const formTitle = document.getElementById('formTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const productsListBody = document.getElementById('productsListBody');
+        const productImage = document.getElementById('productImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const fileLabel = document.getElementById('fileLabel');
+        const categoriesList = document.getElementById('categoriesList');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // Init
+        if (authToken) {
+            showAdmin();
+        }
+
+        // Auth
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    authToken = data.token;
+                    localStorage.setItem('kerovic_admin_token', authToken);
+                    loginError.style.display = 'none';
+                    showAdmin();
+                    showToast('Bienvenido', 'success');
+                } else {
+                    loginError.style.display = 'block';
+                }
+            } catch (err) {
+                loginError.style.display = 'block';
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            authToken = null;
+            localStorage.removeItem('kerovic_admin_token');
+            loginSection.classList.remove('hidden');
+            adminSection.classList.add('hidden');
+            document.getElementById('password').value = '';
+        });
+
+        function showAdmin() {
+            loginSection.classList.add('hidden');
+            adminSection.classList.remove('hidden');
+            loadProducts();
+            loadCategories();
+        }
+
+        // Products
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                products = await res.json();
+                renderProducts();
+            } catch (err) {
+                showToast('Error cargando productos', 'error');
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const res = await fetch('/api/products/meta/categories');
+                const cats = await res.json();
+                categoriesList.innerHTML = cats.map(c => `<option value="${c}">`).join('');
+            } catch (err) { }
+        }
+
+        function renderProducts() {
+            if (products.length === 0) {
+                productsListBody.innerHTML = `
+          <div class="product-item" style="justify-content: center; color: #8B9CAD;">
+            No hay productos. ¡Agrega el primero! 🎉
+          </div>
+        `;
+                return;
+            }
+
+            productsListBody.innerHTML = products.map(p => `
+        <div class="product-item" data-id="${p.id}">
+          <img src="${p.image_url || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f0f4f8%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22>💅</text></svg>'}" 
+               alt="${escapeHtml(p.name)}"
+               onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f0f4f8%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 font-size=%2240%22 text-anchor=%22middle%22>💅</text></svg>'">
+          <div class="product-item-info">
+            <div class="product-item-name">${escapeHtml(p.name)}</div>
+            <div class="product-item-meta">
+              <span>${escapeHtml(p.category || 'Sin categoría')}</span>
+              <span class="product-item-price">$${parseFloat(p.price).toFixed(2)}</span>
+            </div>
+          </div>
+          <div class="product-item-actions">
+            <button class="btn btn-secondary btn-sm" onclick="editProduct(${p.id})">✏️</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+        }
+
+        // Form
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(productForm);
+            if (!editingProductId) formData.delete('id');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Guardando...';
+
+            try {
+                const url = editingProductId ? `/api/products/${editingProductId}` : '/api/products';
+                const method = editingProductId ? 'PUT' : 'POST';
+
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    showToast(editingProductId ? 'Actualizado' : 'Agregado', 'success');
+                    resetForm();
+                    loadProducts();
+                    loadCategories();
+                } else if (res.status === 401) {
+                    showToast('Sesión expirada', 'error');
+                    logoutBtn.click();
+                } else {
+                    showToast('Error al guardar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = editingProductId ? '💾 Guardar' : '➕ Agregar';
+            }
+        });
+
+        function editProduct(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+
+            editingProductId = id;
+            document.getElementById('productId').value = p.id;
+            document.getElementById('productName').value = p.name;
+            document.getElementById('productDescription').value = p.description || '';
+            document.getElementById('productPrice').value = p.price;
+            document.getElementById('productCategory').value = p.category || '';
+
+            if (p.image_url) {
+                imagePreview.src = p.image_url;
+                imagePreview.classList.add('show');
+                fileLabel.textContent = 'Cambiar imagen';
+            }
+
+            formTitle.textContent = '✏️ Editar Producto';
+            submitBtn.textContent = '💾 Guardar';
+            cancelEditBtn.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('¿Eliminar este producto?')) return;
+
+            try {
+                const res = await fetch(`/api/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (res.ok) {
+                    showToast('Eliminado', 'success');
+                    loadProducts();
+                } else {
+                    showToast('Error al eliminar', 'error');
+                }
+            } catch (err) {
+                showToast('Error de conexión', 'error');
+            }
+        }
+
+        cancelEditBtn.addEventListener('click', resetForm);
+
+        function resetForm() {
+            editingProductId = null;
+            productForm.reset();
+            imagePreview.classList.remove('show');
+            imagePreview.src = '';
+            fileLabel.textContent = 'Toca para subir imagen';
+            formTitle.textContent = '➕ Agregar Producto';
+            submitBtn.textContent = '➕ Agregar';
+            cancelEditBtn.classList.add('hidden');
+        }
+
+        // Image preview
+        productImage.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.add('show');
+                    fileLabel.textContent = file.name;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Utils
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = msg;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+
+</html>
