@@ -688,18 +688,7 @@
       }, 200);
     });
 
-    // Update filter buttons class
-    const filtersEl = document.getElementById('filtersContainer');
-    if (filtersEl) {
-      const originalAppendChild = filtersEl.appendChild.bind(filtersEl);
-      filtersEl.appendChild = function (node) {
-        if (node.classList && node.classList.contains('filter-btn')) {
-          node.classList.remove('filter-btn');
-          node.classList.add('filter-chip');
-        }
-        return originalAppendChild(node);
-      };
-    }
+
   </script>
 </body>
 

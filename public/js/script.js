@@ -72,7 +72,7 @@ async function loadCategories() {
 
         categories.forEach(cat => {
             const btn = document.createElement('button');
-            btn.className = 'filter-btn';
+            btn.className = 'filter-chip';
             btn.dataset.category = cat;
             btn.textContent = cat;
             filtersContainer.appendChild(btn);
@@ -320,9 +320,9 @@ function setupEventListeners() {
 
     // Category filters
     filtersContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('filter-btn')) {
+        if (e.target.classList.contains('filter-chip')) {
             // Update active state
-            filtersContainer.querySelectorAll('.filter-btn').forEach(btn => {
+            filtersContainer.querySelectorAll('.filter-chip').forEach(btn => {
                 btn.classList.remove('active');
             });
             e.target.classList.add('active');
