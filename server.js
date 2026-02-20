@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const pool = require('./config/db');
+const db = require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,20 +30,10 @@ app.get('/api/config', (req, res) => {
 // Initialize database
 const initDB = async () => {
     try {
-        await pool.query(`
-      CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        description TEXT,
-        price DECIMAL(10, 2) NOT NULL,
-        image_url TEXT,
-        category VARCHAR(100),
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-        console.log('✅ Database initialized');
+        await db.execute('SELECT 1');
+        console.log('✅ Turso database connected');
     } catch (error) {
-        console.error('❌ Database initialization error:', error.message);
+        console.error('❌ Database connection error:', error.message);
     }
 };
 

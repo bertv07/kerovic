@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const cloudinary = require('../config/cloudinary');
-const pool = require('../config/db');
+const db = require('../config/db');
 const authMiddleware = require('../middleware/auth');
 
 // Multer config - memory storage for Render (no local file persistence)
@@ -18,6 +18,10 @@ const upload = multer({
         }
     }
 });
+
+// Price helpers: DB stores cents (INTEGER), API sends/receives decimals
+const toCents = (price) => Math.round(parseFloat(price) * 100);
+const fromCents = (row) => ({ ...row, price: row.price / 100 });
 
 // Helper: Upload buffer to Cloudinary
 const uploadToCloudinary = (buffer, folder = 'kerovic') => {
@@ -37,16 +41,18 @@ const uploadToCloudinary = (buffer, folder = 'kerovic') => {
 router.get('/', async (req, res) => {
     try {
         const { category } = req.query;
-        let query = 'SELECT * FROM products ORDER BY created_at DESC';
-        let params = [];
+        let result;
 
         if (category) {
-            query = 'SELECT * FROM products WHERE category = $1 ORDER BY created_at DESC';
-            params = [category];
+            result = await db.execute({
+                sql: 'SELECT * FROM products WHERE category = ? ORDER BY created_at DESC',
+                args: [category]
+            });
+        } else {
+            result = await db.execute('SELECT * FROM products ORDER BY created_at DESC');
         }
 
-        const result = await pool.query(query, params);
-        res.json(result.rows);
+        res.json(result.rows.map(fromCents));
     } catch (error) {
         console.error('Error fetching products:', error);
         res.status(500).json({ error: 'Error al obtener productos' });
@@ -57,13 +63,16 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+        const result = await db.execute({
+            sql: 'SELECT * FROM products WHERE id = ?',
+            args: [id]
+        });
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-        res.json(result.rows[0]);
+        res.json(fromCents(result.rows[0]));
     } catch (error) {
         console.error('Error fetching product:', error);
         res.status(500).json({ error: 'Error al obtener producto' });
@@ -73,7 +82,7 @@ router.get('/:id', async (req, res) => {
 // GET categories (public)
 router.get('/meta/categories', async (req, res) => {
     try {
-        const result = await pool.query('SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category');
+        const result = await db.execute('SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category');
         res.json(result.rows.map(row => row.category));
     } catch (error) {
         console.error('Error fetching categories:', error);
@@ -88,19 +97,23 @@ router.post('/', authMiddleware, upload.single('image'), async (req, res) => {
         let imageUrl = null;
 
         if (req.file) {
-            const result = await uploadToCloudinary(req.file.buffer);
-            imageUrl = result.secure_url;
+            const uploadResult = await uploadToCloudinary(req.file.buffer);
+            imageUrl = uploadResult.secure_url;
         }
 
-        const query = `
-      INSERT INTO products (name, description, price, image_url, category)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
-    `;
-        const values = [name, description, price, imageUrl, category];
-        const result = await pool.query(query, values);
+        const insertResult = await db.execute({
+            sql: 'INSERT INTO products (name, description, price, image_url, category) VALUES (?, ?, ?, ?, ?)',
+            args: [name, description, toCents(price), imageUrl, category]
+        });
 
-        res.status(201).json(result.rows[0]);
+        // libSQL does not support RETURNING — fetch the newly created row
+        const newId = insertResult.lastInsertRowid;
+        const result = await db.execute({
+            sql: 'SELECT * FROM products WHERE id = ?',
+            args: [newId]
+        });
+
+        res.status(201).json(fromCents(result.rows[0]));
     } catch (error) {
         console.error('Error creating product:', error);
         res.status(500).json({ error: 'Error al crear producto' });
@@ -114,7 +127,10 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
         const { name, description, price, category } = req.body;
 
         // Get current product
-        const current = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+        const current = await db.execute({
+            sql: 'SELECT * FROM products WHERE id = ?',
+            args: [id]
+        });
         if (current.rows.length === 0) {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
@@ -123,20 +139,22 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
 
         // Upload new image if provided
         if (req.file) {
-            const result = await uploadToCloudinary(req.file.buffer);
-            imageUrl = result.secure_url;
+            const uploadResult = await uploadToCloudinary(req.file.buffer);
+            imageUrl = uploadResult.secure_url;
         }
 
-        const query = `
-      UPDATE products 
-      SET name = $1, description = $2, price = $3, image_url = $4, category = $5
-      WHERE id = $6
-      RETURNING *
-    `;
-        const values = [name, description, price, imageUrl, category, id];
-        const result = await pool.query(query, values);
+        await db.execute({
+            sql: 'UPDATE products SET name = ?, description = ?, price = ?, image_url = ?, category = ? WHERE id = ?',
+            args: [name, description, toCents(price), imageUrl, category, id]
+        });
 
-        res.json(result.rows[0]);
+        // Fetch the updated row
+        const result = await db.execute({
+            sql: 'SELECT * FROM products WHERE id = ?',
+            args: [id]
+        });
+
+        res.json(fromCents(result.rows[0]));
     } catch (error) {
         console.error('Error updating product:', error);
         res.status(500).json({ error: 'Error al actualizar producto' });
@@ -147,13 +165,25 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res) => {
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
-        const result = await pool.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
+
+        // Fetch the product before deleting so we can return it
+        const result = await db.execute({
+            sql: 'SELECT * FROM products WHERE id = ?',
+            args: [id]
+        });
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
 
-        res.json({ message: 'Producto eliminado', product: result.rows[0] });
+        const deletedProduct = result.rows[0];
+
+        await db.execute({
+            sql: 'DELETE FROM products WHERE id = ?',
+            args: [id]
+        });
+
+        res.json({ message: 'Producto eliminado', product: fromCents(deletedProduct) });
     } catch (error) {
         console.error('Error deleting product:', error);
         res.status(500).json({ error: 'Error al eliminar producto' });

@@ -1,12 +1,12 @@
--- Kerovic Products Table
+-- Kerovic Products Table (SQLite / Turso)
 CREATE TABLE IF NOT EXISTS products (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
   description TEXT,
-  price DECIMAL(10, 2) NOT NULL,
+  price INTEGER NOT NULL,  -- stored in cents, e.g. 1250 = $12.50
   image_url TEXT,
-  category VARCHAR(100),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  category TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
 );
 
 -- Index for category filtering

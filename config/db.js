@@ -1,11 +1,8 @@
-const { Pool } = require('pg');
+const { createClient } = require('@libsql/client');
 
-// Enable SSL for Render PostgreSQL (required)
-const isRenderDB = process.env.DATABASE_URL && process.env.DATABASE_URL.includes('render.com');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: isRenderDB ? { rejectUnauthorized: false } : false
+const db = createClient({
+  url: process.env.TURSO_DATABASE_URL,
+  authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-module.exports = pool;
+module.exports = db;
